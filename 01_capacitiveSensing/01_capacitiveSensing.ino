@@ -3,6 +3,8 @@ const int OUT = D2;
 
 const int touchVal = 7;
 
+int consecutiveTouchMeasurements = 0;
+
 void setup() {
   pinMode(IN, INPUT);
   pinMode(OUT, OUTPUT);
@@ -24,6 +26,12 @@ void loop() {
   Serial.println(sensVal);
 
   if (sensVal > touchVal) {
+    consecutiveTouchMeasurements++;
+  } else {
+    consecutiveTouchMeasurements = 0;
+  }
+
+  if (consecutiveTouchMeasurements > 5) {
     digitalWrite(LED_BUILTIN, LOW);
   } else {
     digitalWrite(LED_BUILTIN, HIGH);
