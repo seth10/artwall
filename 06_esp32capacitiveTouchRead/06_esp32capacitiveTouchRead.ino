@@ -3,6 +3,8 @@
 
 int touchVal = 9999;
 int touchCount = 0;
+boolean currentlyTouched = false;
+int touchedTimes = 0;
 
 void setup()
 {
@@ -14,6 +16,8 @@ void setup()
 void loop()
 {
   touchVal = touchRead(T0);
+  Serial.print(touchedTimes);
+  Serial.print(" - ");
   Serial.print(touchVal);
   if (touchVal < 26) {
     touchCount++;
@@ -23,9 +27,16 @@ void loop()
   Serial.print(" - ");
   Serial.print(touchCount);
   
-  if (touchCount >= 5) {
+  if (touchCount >= 3) {
     Serial.print(" - touched!");
+    if (!currentlyTouched) {
+      currentlyTouched = true;
+      touchedTimes++;
+    }
+  } else {
+    currentlyTouched = false;
   }
+  
   Serial.println();
   delay(100);
 }
