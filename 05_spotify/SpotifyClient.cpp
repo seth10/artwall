@@ -118,7 +118,7 @@ uint16_t SpotifyClient::update(SpotifyData *data, SpotifyAuth *auth) {
         }
       } else {
         String line = client.readStringUntil('\r');
-        Serial.println(line);
+        Serial.print(line);
         if (line.startsWith("HTTP/1.")) {
           httpCode = line.substring(9, line.indexOf(' ', 9)).toInt();
           Serial.printf("HTTP Code: %d\n", httpCode); 
