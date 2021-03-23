@@ -17,7 +17,15 @@ String loadRefreshToken();
 
 void setup() {
   Serial.begin(115200);
-//SPIFFS.remove("/refreshToken.txt");SPIFFS.format();delay(1000);
+  
+//  SPIFFS.remove("/refreshToken.txt");
+//  SPIFFS.format();
+//  File f = SPIFFS.open("/refreshToken.txt", "w+");
+//  if (!f) Serial.println("Failed to open config file");
+//  f.println("");
+//  f.close();
+//  delay(1000);
+  
   boolean mounted = SPIFFS.begin();
   if (!mounted) {
     Serial.println("FS not formatted. Doing that now");
@@ -61,12 +69,12 @@ void setup() {
 }
 
 void loop() {
-  if (millis() - lastUpdate > 10000) {
+  if (millis() - lastUpdate > 1000) {
     uint16_t responseCode = client.update(&data, &auth);
-    Serial.printf("HREF: %s\n", data.image300Href.c_str());
+//    Serial.printf("HREF: %s\n", data.image300Href.c_str());
     lastUpdate = millis();
     Serial.printf("--------Response Code: %d\n", responseCode);
-    Serial.printf("--------Free mem: %d\n", ESP.getFreeHeap());
+//    Serial.printf("--------Free mem: %d\n", ESP.getFreeHeap());
     
     if (responseCode == 401) {
       client.getToken(&auth, "refresh_token", auth.refreshToken);
@@ -89,6 +97,22 @@ void loop() {
       Serial.println("Please define clientId and clientSecret");
     }
 
+    if (responseCode == 204) {
+      Serial.println("Nothing is playing");
+    }
+
+  }
+  
+  if (millis() % 10000 > 9000) {
+    String method = "PUT"; 
+    String command = "play";
+    if (data.isPlaying) {
+      command = "pause";
+    }
+    data.isPlaying = !data.isPlaying;   
+    uint16_t responseCode = client.playerCommand(&auth, method, command);
+    Serial.print("playerCommand response =");
+    Serial.println(responseCode);
   }
 }
 
