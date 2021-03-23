@@ -1,5 +1,5 @@
-#include <ESP8266mDNS.h>
-#include <ESP8266WiFi.h>
+#include <ESPmDNS.h>
+#include <WiFi.h>
 #include <WiFiClientSecure.h>
 #include <FS.h>
 #include "SpotifyClient.h"
@@ -42,7 +42,7 @@ void setup() {
   String refreshToken = loadRefreshToken();
   if (refreshToken == "") {
     Serial.println("No refresh token found. Requesting through browser");
-    Serial.println ( "Open browser at http://" + espotifierNodeName );
+    Serial.println ( "Open browser at http://" + espotifierNodeName + ".local" );
     code = client.startConfigPortal();
     grantType = "authorization_code";
   } else {
