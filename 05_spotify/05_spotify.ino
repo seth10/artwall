@@ -51,6 +51,7 @@ void setup() {
     grantType = "refresh_token";
   }
   client.getToken(&auth, grantType, code);
+  Serial.println("getToken call finished");
   Serial.printf("Refresh token: %s\nAccess Token: %s\n", auth.refreshToken.c_str(), auth.accessToken.c_str());
   if (auth.refreshToken != "") {
     saveRefreshToken(auth.refreshToken);
@@ -63,6 +64,7 @@ void loop() {
 }
 
 void saveRefreshToken(String refreshToken) {
+  Serial.println("Saving config");
   File f = SPIFFS.open("/refreshToken.txt", "w+");
   if (!f) {
     Serial.println("Failed to open config file");
