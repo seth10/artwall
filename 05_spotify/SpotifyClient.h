@@ -25,8 +25,9 @@
 #include <Arduino.h>
 #include <JsonListener.h>
 #include <JsonStreamingParser.h>
-#include <ESP8266WebServer.h>
+#include <WebServer.h>
 #include <FS.h>
+#include "SPIFFS.h"
 #include <base64.h>
 
 typedef void (*DrawingCallback)();
@@ -139,7 +140,7 @@ class SpotifyClient: public JsonListener {
   String clientId;
   String clientSecret;
   String redirectUri;
-  ESP8266WebServer server;
+  WebServer server;
 
   String getRootPath();
   void executeCallback();
@@ -182,4 +183,3 @@ class SpotifyClient: public JsonListener {
 
     
 };
-

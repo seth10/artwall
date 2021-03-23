@@ -21,8 +21,8 @@
  SOFTWARE.
  */
 
-#include <ESP8266WiFi.h>
-#include <ESP8266HTTPClient.h>
+#include <WiFi.h>
+#include <HTTPClient.h>
 #include "SpotifyClient.h"
 
 #define min(X, Y) (((X)<(Y))?(X):(Y))
@@ -205,7 +205,7 @@ void SpotifyClient::getToken(SpotifyAuth *auth, String grantType, String code) {
   String url = "/api/token";
   if (!client.connect(host, port)) {
     Serial.println("connection failed from getToken");
-//    return;
+    return;
   }
 
   Serial.print("Requesting URL: ");
@@ -215,7 +215,7 @@ void SpotifyClient::getToken(SpotifyAuth *auth, String grantType, String code) {
     codeParam = "refresh_token"; 
   }
   String authorizationRaw = clientId + ":" + clientSecret;
-  String authorization = base64::encode(authorizationRaw, false);
+  String authorization = base64::encode(authorizationRaw);
   // This will send the request to the server
   String content = "grant_type=" + grantType + "&" + codeParam + "=" + code + "&redirect_uri=" + redirectUri;
   String request = String("POST ") + url + " HTTP/1.1\r\n" +
