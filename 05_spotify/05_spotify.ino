@@ -11,9 +11,15 @@ SpotifyAuth auth;
 
 String currentImageUrl = "";
 long lastUpdate = 0;
+const int threshold = 25;
+bool touchDetected = false;
 
 void saveRefreshToken(String refreshToken);
 String loadRefreshToken();
+
+void gotTouch(){
+ touchDetected = true;
+}
 
 void setup() {
   Serial.begin(115200);
@@ -66,6 +72,8 @@ void setup() {
   if (auth.refreshToken != "") {
     saveRefreshToken(auth.refreshToken);
   }
+
+  touchAttachInterrupt(T0, gotTouch, threshold);
 }
 
 void loop() {
@@ -103,7 +111,7 @@ void loop() {
 
   }
   
-  if (millis() % 10000 > 9000) {
+  if (touchDetected) {
     String method = "PUT"; 
     String command = "play";
     if (data.isPlaying) {
@@ -113,6 +121,7 @@ void loop() {
     uint16_t responseCode = client.playerCommand(&auth, method, command);
     Serial.print("playerCommand response =");
     Serial.println(responseCode);
+    touchDetected = false;
   }
 }
 
