@@ -51,7 +51,6 @@ void setup() {
     grantType = "refresh_token";
   }
   client.getToken(&auth, grantType, code);
-  Serial.println("getToken call finished");
   Serial.printf("Refresh token: %s\nAccess Token: %s\n", auth.refreshToken.c_str(), auth.accessToken.c_str());
   if (auth.refreshToken != "") {
     saveRefreshToken(auth.refreshToken);

@@ -264,7 +264,6 @@ void SpotifyClient::getToken(SpotifyAuth *auth, String grantType, String code) {
     }
     delay(10);
   }
-  Serial.println("Made it past client not available");
 
   int pos = 0;
   boolean isBody = false;
@@ -273,7 +272,6 @@ void SpotifyClient::getToken(SpotifyAuth *auth, String grantType, String code) {
   int size = 0;
   client.setNoDelay(false);
   while(client.connected() && client.available()) {
-  Serial.println("client connected and available");
     while((size = client.available()) > 0) {
       c = client.read();
       if (c == '{' || c == '[') {
@@ -288,7 +286,6 @@ void SpotifyClient::getToken(SpotifyAuth *auth, String grantType, String code) {
     }
     executeCallback();
   }
-  Serial.println("client no longer connected and available");
 
   this->data = nullptr;
 }
