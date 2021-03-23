@@ -9,12 +9,15 @@ SpotifyClient client(clientId, clientSecret, redirectUri);
 SpotifyData data;
 SpotifyAuth auth;
 
+String currentImageUrl = "";
+long lastUpdate = 0;
+
 void saveRefreshToken(String refreshToken);
 String loadRefreshToken();
 
 void setup() {
   Serial.begin(115200);
-
+//SPIFFS.remove("/refreshToken.txt");SPIFFS.format();delay(1000);
   boolean mounted = SPIFFS.begin();
   if (!mounted) {
     Serial.println("FS not formatted. Doing that now");
@@ -58,8 +61,35 @@ void setup() {
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
+  if (millis() - lastUpdate > 10000) {
+    uint16_t responseCode = client.update(&data, &auth);
+    Serial.printf("HREF: %s\n", data.image300Href.c_str());
+    lastUpdate = millis();
+    Serial.printf("--------Response Code: %d\n", responseCode);
+    Serial.printf("--------Free mem: %d\n", ESP.getFreeHeap());
+    
+    if (responseCode == 401) {
+      client.getToken(&auth, "refresh_token", auth.refreshToken);
+      if (auth.refreshToken != "") {
+        saveRefreshToken(auth.refreshToken);
+      }
+    }
+    
+    if (responseCode == 200) {
+      String selectedImageHref = data.image300Href;
+      selectedImageHref.replace("https", "http");
+      
+      if (selectedImageHref != currentImageUrl) {
+        currentImageUrl = selectedImageHref;
+        Serial.println(currentImageUrl);
+      }
+    }
+    
+    if (responseCode == 400) {
+      Serial.println("Please define clientId and clientSecret");
+    }
 
+  }
 }
 
 void saveRefreshToken(String refreshToken) {

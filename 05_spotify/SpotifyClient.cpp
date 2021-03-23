@@ -106,7 +106,7 @@ uint16_t SpotifyClient::update(SpotifyData *data, SpotifyAuth *auth) {
   client.setNoDelay(false);
   // while(client.connected()) {
   uint16_t httpCode = 0;
-  while(client.connected() || client.available()) {
+  while(client.connected() && client.available()) {
     while((size = client.available()) > 0) {
    
       if (isBody) {
