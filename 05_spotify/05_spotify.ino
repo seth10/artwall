@@ -24,14 +24,6 @@ void gotTouch(){
 void setup() {
   Serial.begin(115200);
   
-//  SPIFFS.remove("/refreshToken.txt");
-//  SPIFFS.format();
-//  File f = SPIFFS.open("/refreshToken.txt", "w+");
-//  if (!f) Serial.println("Failed to open config file");
-//  f.println("");
-//  f.close();
-//  delay(1000);
-  
   boolean mounted = SPIFFS.begin();
   if (!mounted) {
     Serial.println("FS not formatted. Doing that now");
@@ -112,6 +104,7 @@ void loop() {
   }
   
   if (touchDetected) {
+    Serial.println("Touch detected");
     String method = "PUT"; 
     String command = "play";
     if (data.isPlaying) {
@@ -121,6 +114,11 @@ void loop() {
     uint16_t responseCode = client.playerCommand(&auth, method, command);
     Serial.print("playerCommand response =");
     Serial.println(responseCode);
+
+    String babyPink = "spotify:track:72fcuPjT9RbB802xcY0QDt";
+    String everywhere = "13787cfb1a15ae6690a29d3895c54de9";
+    client.playSong(&auth, babyPink, everywhere);
+
     touchDetected = false;
   }
 }

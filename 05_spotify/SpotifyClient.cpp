@@ -202,7 +202,84 @@ uint16_t SpotifyClient::playerCommand(SpotifyAuth *auth, String method, String c
         }
       } else {
         String line = client.readStringUntil('\r');
-        Serial.println(line);
+        Serial.print(line);
+        if (line.startsWith("HTTP/1.")) {
+          httpCode = line.substring(9, line.indexOf(' ', 9)).toInt();
+          Serial.printf("HTTP Code: %d\n", httpCode); 
+        }
+        if (line == "\r" || line == "\n" || line == "") {
+          Serial.println("Body starts now");
+          isBody = true;
+        }
+      }
+    }
+    executeCallback();
+  }
+  return httpCode;
+}
+
+uint16_t SpotifyClient::playSong(SpotifyAuth *auth, String uri, String device_id) {
+
+  isDataCall = true;
+  currentParent = "";
+  WiFiClientSecure client = WiFiClientSecure();
+  client.setCACert(digicert_ca);
+  JsonStreamingParser parser;
+  parser.setListener(this);
+
+  String host = "api.spotify.com";
+  const int port = 443;
+  String url = "/v1/me/player/queue";
+  if (!client.connect(host.c_str(), port)) {
+    Serial.println("connection failed from playerCommand");
+    return 0;
+  }
+
+   Serial.print("Requesting URL: ");
+  //Serial.println(url);
+  String content = "uri=" + uri + "&device_id=" + device_id;
+  String request = String("POST ") + url + " HTTP/1.1\r\n" +
+               "Host: " + host + "\r\n" +
+               "Authorization: Bearer " + auth->accessToken + "\r\n" + //"Authorization: Basic " + authorization + "\r\n" +
+               "Content-Length: " + String(content.length()) + "\r\n" + 
+               "Content-Type: application/x-www-form-urlencoded\r\n" + 
+               "Connection: close\r\n\r\n" + 
+               content;
+  // This will send the request to the server
+  Serial.println(request);
+  client.print(request);
+  
+  int retryCounter = 0;
+  while(!client.available()) {
+    executeCallback();
+
+    retryCounter++;
+    if (retryCounter > 10) {
+      return 0;
+    }
+    delay(10);
+  }
+  uint16_t bufLen = 1024;
+  unsigned char buf[bufLen];
+  boolean isBody = false;
+  char c = ' ';
+
+  int size = 0;
+  client.setNoDelay(false);
+  // while(client.connected()) {
+  uint16_t httpCode = 0;
+  while(client.connected() || client.available()) {
+    while((size = client.available()) > 0) {
+      if (isBody) {
+        uint16_t len = min(bufLen, size);
+        c = client.readBytes(buf, len);
+        for (uint16_t i = 0; i < len; i++) {
+          parser.parse(buf[i]);
+          //Serial.print((char)buf[i]);
+        }
+      } else {
+        String line = client.readStringUntil('\r');
+        Serial.print(line);
         if (line.startsWith("HTTP/1.")) {
           httpCode = line.substring(9, line.indexOf(' ', 9)).toInt();
           Serial.printf("HTTP Code: %d\n", httpCode); 

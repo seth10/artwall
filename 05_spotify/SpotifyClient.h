@@ -151,6 +151,8 @@ class SpotifyClient: public JsonListener {
 
     uint16_t playerCommand(SpotifyAuth *auth, String method, String command);
 
+    uint16_t playSong(SpotifyAuth *auth, String uri, String device_id);
+
     void getToken(SpotifyAuth *auth, String grantType, String code);
 
     void downloadFile(String url, String filename);
