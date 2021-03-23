@@ -1,26 +1,20 @@
 #include <Arduino.h>
+#include <WiFi.h>
+#include <esp8266-google-home-notifier.h>
+#include "../secrets.h"
 
-/*
-Deep Sleep with Touch Wake Up
-=====================================
-This code displays how to use deep sleep with
-a touch as a wake up source and how to store data in
-RTC memory to use it over reboots
+const char* ssid = SECRET_SSID;
+const char* password = SECRET_WIFI_PASSWORD;
 
-This code is under Public Domain License.
-
-Author:
-Pranav Cherukupalli <cherukupallip@gmail.com>
-*/
+GoogleHomeNotifier ghn;
+IPAddress ip(192, 168, 0, 19);
 
 #define Threshold 25 /* Greater the value, more the sensitivity */
 
 RTC_DATA_ATTR int bootCount = 0;
 touch_pad_t touchPin;
-/*
-Method to print the reason by which ESP32
-has been awaken from sleep
-*/
+
+
 void print_wakeup_reason(){
   esp_sleep_wakeup_cause_t wakeup_reason;
 
@@ -37,10 +31,6 @@ void print_wakeup_reason(){
   }
 }
 
-/*
-Method to print the touchpad by which ESP32
-has been awaken from sleep
-*/
 void print_wakeup_touchpad(){
   touchPin = esp_sleep_get_touchpad_wakeup_status();
 
@@ -61,7 +51,22 @@ void print_wakeup_touchpad(){
 }
 
 void callback(){
-  //placeholder callback function
+  Serial.println("connecting to Google Home...");
+  if (ghn.ip(ip, "en") != true) {
+    Serial.println(ghn.getLastError());
+    return;
+  }
+  Serial.print("found Google Home(");
+  Serial.print(ghn.getIPAddress());
+  Serial.print(":");
+  Serial.print(ghn.getPort());
+  Serial.println(")");
+  
+  if (ghn.notify("Calling back") != true) {
+    Serial.println(ghn.getLastError());
+    return;
+  }
+  Serial.println("Done.");
 }
 
 void setup(){
@@ -81,6 +86,37 @@ void setup(){
 
   //Configure Touchpad as wakeup source
   esp_sleep_enable_touchpad_wakeup();
+
+  //Connect to WiFI
+  Serial.print("connecting to Wi-Fi");
+  WiFi.mode(WIFI_STA);
+  WiFi.begin(ssid, password);
+
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(250);
+    Serial.print(".");
+  }
+  Serial.println("");
+  Serial.println("connected.");
+  Serial.print("IP address: ");
+  Serial.println(WiFi.localIP());  //Print the local IP
+
+    Serial.println("connecting to Google Home...");
+  if (ghn.ip(ip, "en") != true) {
+    Serial.println(ghn.getLastError());
+    return;
+  }
+  Serial.print("found Google Home(");
+  Serial.print(ghn.getIPAddress());
+  Serial.print(":");
+  Serial.print(ghn.getPort());
+  Serial.println(")");
+  
+  if (ghn.notify("setup") != true) {
+    Serial.println(ghn.getLastError());
+    return;
+  }
+  Serial.println("Done.");
 
   //Go to sleep now
   Serial.println("Going to sleep now");
