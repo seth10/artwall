@@ -105,7 +105,7 @@ void loop() {
   
   if (touchDetected) {
     Serial.println("Touch detected");
-    String method = "PUT"; 
+    /*String method = "PUT"; 
     String command = "play";
     if (data.isPlaying) {
       command = "pause";
@@ -113,11 +113,13 @@ void loop() {
     data.isPlaying = !data.isPlaying;   
     uint16_t responseCode = client.playerCommand(&auth, method, command);
     Serial.print("playerCommand response =");
-    Serial.println(responseCode);
+    Serial.println(responseCode);*/
 
     String babyPink = "spotify:track:72fcuPjT9RbB802xcY0QDt";
     String everywhere = "13787cfb1a15ae6690a29d3895c54de9";
-    client.playSong(&auth, babyPink, everywhere);
+    uint16_t responseCode = client.playSong(&auth, babyPink);
+    Serial.print("playSong response =");
+    Serial.println(responseCode);
 
     touchDetected = false;
   }

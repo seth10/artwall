@@ -106,6 +106,7 @@ uint16_t SpotifyClient::update(SpotifyData *data, SpotifyAuth *auth) {
   client.setNoDelay(false);
   // while(client.connected()) {
   uint16_t httpCode = 0;
+  Serial.println("Starting to print response from update.");
   while(client.connected() && client.available()) {
     while((size = client.available()) > 0) {
    
@@ -131,6 +132,7 @@ uint16_t SpotifyClient::update(SpotifyData *data, SpotifyAuth *auth) {
       executeCallback();
     }
   }
+  Serial.println((char*)buf);
   if (httpCode == 200) {
     this->data->isPlayerActive = true;
   } else if (httpCode == 204) {
@@ -218,7 +220,7 @@ uint16_t SpotifyClient::playerCommand(SpotifyAuth *auth, String method, String c
   return httpCode;
 }
 
-uint16_t SpotifyClient::playSong(SpotifyAuth *auth, String uri, String device_id) {
+uint16_t SpotifyClient::playSong(SpotifyAuth *auth, String uri) {
 
   isDataCall = true;
   currentParent = "";
@@ -237,7 +239,7 @@ uint16_t SpotifyClient::playSong(SpotifyAuth *auth, String uri, String device_id
 
    Serial.print("Requesting URL: ");
   //Serial.println(url);
-  String content = "uri=" + uri + "&device_id=" + device_id;
+  String content = "uri=" + uri;
   String request = String("POST ") + url + " HTTP/1.1\r\n" +
                "Host: " + host + "\r\n" +
                "Authorization: Bearer " + auth->accessToken + "\r\n" + //"Authorization: Basic " + authorization + "\r\n" +
